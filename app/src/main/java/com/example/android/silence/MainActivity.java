@@ -60,6 +60,7 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener{
             @Override
             public void onClick(View v) {
                 silentList.add(new SilentLocale(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+                mAdapter.notifyDataSetChanged();
             }
         });
 
