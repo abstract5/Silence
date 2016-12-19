@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Silence</string>
+    <string name="add_button">Add new location</string>
 </resources>
