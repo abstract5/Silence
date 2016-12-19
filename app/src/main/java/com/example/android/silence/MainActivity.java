@@ -7,6 +7,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +34,8 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener{
     private TextView mTxtLongitude;
     private ListView mList;
     private SilenceAdapter mAdapter;
+    private LinearLayout mContainer;
+    private Location mCurrentLocation;
     private  ArrayList<SilentLocale> silentList;
 
     @Override
@@ -40,13 +44,25 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener{
         setContentView(R.layout.activity_main);
 
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+
         silentList = new ArrayList<>();
         silentList.add(launchCode);
+
         mAdapter = new SilenceAdapter(this, silentList);
         mList = (ListView) findViewById(R.id.silent_list);
+
         mTxtLatitude = (TextView) findViewById(R.id.latitude);
         mTxtLongitude = (TextView) findViewById(R.id.longitude);
+        mContainer = (LinearLayout) findViewById(R.id.button_container);
         mList.setAdapter(mAdapter);
+
+        mContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                silentList.add(new SilentLocale(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()));
+            }
+        });
+
         buildGoogleApiClient();
     }
 
@@ -90,6 +106,7 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener{
     public void onLocationChanged(Location location) {
         mTxtLongitude.setText(Double.toString(location.getLongitude()));
         mTxtLatitude.setText(Double.toString(location.getLatitude()));
+        mCurrentLocation = location;
 
         for(int i = 0; i < silentList.size(); i++) {
             if (mAudioManager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {

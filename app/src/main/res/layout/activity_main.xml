@@ -18,14 +18,17 @@
         android:layout_height="wrap_content"/>
 
     <LinearLayout
+        android:id="@+id/button_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="?attr/selectableItemBackground">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_add_circle_black_24dp"/>
+            android:src="@drawable/ic_add_circle_black_36dp"/>
 
         <TextView
             android:id="@+id/add_button"

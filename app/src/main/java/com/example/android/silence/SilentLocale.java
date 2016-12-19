@@ -17,7 +17,7 @@ public class SilentLocale {
     public SilentLocale(double latitude, double longitude){
         mLat = latitude;
         mLon = longitude;
-        mRadius = 10.0;
+        mRadius = 50.0;
         mName = "LaunchCode";
     }
 
