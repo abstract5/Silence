@@ -35,6 +35,9 @@ public class SilenceAdapter extends ArrayAdapter<SilentLocale>{
         TextView localeName = (TextView) listItemView.findViewById(R.id.silent_name);
         localeName.setText(currentLocale.getSilentName());
 
+        TextView localeAddress = (TextView) listItemView.findViewById(R.id.silent_address);
+        localeAddress.setText(currentLocale.getAddress());
+
         return listItemView;
     }
 }
