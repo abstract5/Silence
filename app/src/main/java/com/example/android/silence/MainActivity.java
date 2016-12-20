@@ -11,7 +11,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,45 +33,12 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener{
     private Toast toast;
     private TextView mTxtLatitude;
     private TextView mTxtLongitude;
-    private ListView mList;
     private RecyclerView mRecycleList;
-    private SilenceAdapter mAdapter;
     private SilenceRecyclerAdapter mRecyclerAdapter;
     private LinearLayout mContainer;
     private Location mCurrentLocation;
     private ArrayList<SilentLocale> silentList;
     private int listSize;
-
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
-//
-//        mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-//
-//        silentList = new ArrayList<>();
-//        silentList.add(launchCode);
-//        listSize = silentList.size();
-//
-//        mAdapter = new SilenceAdapter(this, silentList);
-//        mList = (ListView) findViewById(R.id.silent_list);
-//
-//        mTxtLatitude = (TextView) findViewById(R.id.latitude);
-//        mTxtLongitude = (TextView) findViewById(R.id.longitude);
-//        mContainer = (LinearLayout) findViewById(R.id.button_container);
-//        mList.setAdapter(mAdapter);
-//
-//        mContainer.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                silentList.add(new SilentLocale(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude(), MainActivity.this));
-//                mAdapter.notifyDataSetChanged();
-//                listSize = silentList.size();
-//            }
-//        });
-//
-//        buildGoogleApiClient();
-//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
