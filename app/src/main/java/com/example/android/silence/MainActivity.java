@@ -108,6 +108,7 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener{
         mTxtLongitude.setText(Double.toString(location.getLongitude()));
         mTxtLatitude.setText(Double.toString(location.getLatitude()));
         mCurrentLocation = location;
+        int j = silentList.size();
 
         for(int i = 0; i < silentList.size(); i++) {
             if (mAudioManager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
@@ -115,13 +116,15 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener{
                     mAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
                     toast = Toast.makeText(this, "You're silenced!", Toast.LENGTH_SHORT);
                     toast.show();
+                     j = i;
                 }
             }
-            if (mAudioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
-                if (!silentList.get(i).isSilent(location)) {
+            if (mAudioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT && j < silentList.size()) {
+                if (!silentList.get(j).isSilent(location)) {
                     mAudioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
                     toast = Toast.makeText(this, "You're free ringing!", Toast.LENGTH_SHORT);
                     toast.show();
+                    j = silentList.size();
                 }
             }
         }
