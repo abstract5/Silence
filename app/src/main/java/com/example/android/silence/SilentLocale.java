@@ -74,10 +74,9 @@ public class SilentLocale {
             String streetAdd = address.get(0).getAddressLine(0);
             String city = address.get(0).getLocality();
             String postal = address.get(0).getPostalCode();
-            String country = address.get(0).getCountryName();
 
             silentAddress = silentAddress + streetAdd + ", " +
-                    city + " " + postal + " " + country;
+                    city + " " + postal;
         }catch(IOException e){
             e.printStackTrace();
         }

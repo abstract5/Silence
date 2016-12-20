@@ -11,11 +11,17 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.android.silence.MainActivity">
 
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/silent_list"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+
+    <!--<ListView-->
+        <!--android:id="@+id/silent_list"-->
+        <!--android:orientation="vertical"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"/>-->
 
     <LinearLayout
         android:id="@+id/button_container"

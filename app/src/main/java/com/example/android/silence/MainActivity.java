@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -33,10 +35,44 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener{
     private TextView mTxtLatitude;
     private TextView mTxtLongitude;
     private ListView mList;
+    private RecyclerView mRecycleList;
     private SilenceAdapter mAdapter;
+    private SilenceRecyclerAdapter mRecyclerAdapter;
     private LinearLayout mContainer;
     private Location mCurrentLocation;
-    private  ArrayList<SilentLocale> silentList;
+    private ArrayList<SilentLocale> silentList;
+    private int listSize;
+
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        setContentView(R.layout.activity_main);
+//
+//        mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+//
+//        silentList = new ArrayList<>();
+//        silentList.add(launchCode);
+//        listSize = silentList.size();
+//
+//        mAdapter = new SilenceAdapter(this, silentList);
+//        mList = (ListView) findViewById(R.id.silent_list);
+//
+//        mTxtLatitude = (TextView) findViewById(R.id.latitude);
+//        mTxtLongitude = (TextView) findViewById(R.id.longitude);
+//        mContainer = (LinearLayout) findViewById(R.id.button_container);
+//        mList.setAdapter(mAdapter);
+//
+//        mContainer.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                silentList.add(new SilentLocale(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude(), MainActivity.this));
+//                mAdapter.notifyDataSetChanged();
+//                listSize = silentList.size();
+//            }
+//        });
+//
+//        buildGoogleApiClient();
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,20 +83,23 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener{
 
         silentList = new ArrayList<>();
         silentList.add(launchCode);
+        listSize = silentList.size();
 
-        mAdapter = new SilenceAdapter(this, silentList);
-        mList = (ListView) findViewById(R.id.silent_list);
+        mRecyclerAdapter = new SilenceRecyclerAdapter(silentList);
+        mRecycleList = (RecyclerView) findViewById(R.id.silent_list);
+        mRecycleList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
         mTxtLatitude = (TextView) findViewById(R.id.latitude);
         mTxtLongitude = (TextView) findViewById(R.id.longitude);
         mContainer = (LinearLayout) findViewById(R.id.button_container);
-        mList.setAdapter(mAdapter);
+        mRecycleList.setAdapter(mRecyclerAdapter);
 
         mContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 silentList.add(new SilentLocale(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude(), MainActivity.this));
-                mAdapter.notifyDataSetChanged();
+                mRecyclerAdapter.notifyDataSetChanged();
+                listSize = silentList.size();
             }
         });
 
@@ -108,9 +147,9 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener{
         mTxtLongitude.setText(Double.toString(location.getLongitude()));
         mTxtLatitude.setText(Double.toString(location.getLatitude()));
         mCurrentLocation = location;
-        int j = silentList.size();
+        int j = listSize;
 
-        for(int i = 0; i < silentList.size(); i++) {
+        for(int i = 0; i < listSize; i++) {
             if (mAudioManager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
                 if (silentList.get(i).isSilent(location)) {
                     mAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
@@ -119,12 +158,12 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener{
                      j = i;
                 }
             }
-            if (mAudioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT && j < silentList.size()) {
+            if (mAudioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT && j < listSize) {
                 if (!silentList.get(j).isSilent(location)) {
                     mAudioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
                     toast = Toast.makeText(this, "You're free ringing!", Toast.LENGTH_SHORT);
                     toast.show();
-                    j = silentList.size();
+                    j = listSize;
                 }
             }
         }
