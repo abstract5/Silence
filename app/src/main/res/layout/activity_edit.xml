@@ -14,19 +14,20 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:hint="@string/location_name"
+        android:hint="@string/location_name"
         android:layout_marginBottom="16dp"/>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:hint="@string/location_address"
-        android:layout_marginBottom="16dp"/>
+        android:hint="@string/location_address"
+        android:layout_marginBottom="32dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
         <ImageView
             android:layout_width="wrap_content"
@@ -35,15 +36,16 @@
             android:layout_marginRight="16dp"/>
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/location_edit_radius"/>
+            android:text="@string/location_edit_radius"
+            android:layout_marginRight="16dp"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/location_radius"/>
+            android:text="@string/location_radius"
+            android:layout_marginRight="4dp"/>
 
         <TextView
             android:layout_width="wrap_content"

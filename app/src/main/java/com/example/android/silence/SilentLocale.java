@@ -1,6 +1,7 @@
 package com.example.android.silence;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -20,6 +21,7 @@ public class SilentLocale {
     private double mRadius;
     private float[] distance = new float[1];
     private String mName;
+    private String silentAddress = "";
     public static final String SILENCE_TAG = SilentLocale.class.getSimpleName();
     private Context mContext;
 
@@ -36,14 +38,14 @@ public class SilentLocale {
      *Returns the latitude of SilentLocale object
      */
     public double getSilentLatitude(){
-        return mLocation.getLatitude();
+        return mLat;
     }
 
     /**
      *Returns the longitude of SilentLocale object
      */
     public double getSilentLongitude(){
-        return mLocation.getLongitude();
+        return mLon;
     }
 
     /**
@@ -60,6 +62,10 @@ public class SilentLocale {
         return mName;
     }
 
+    public Location getSilentLocation(){
+        return mLocation;
+    }
+
     /**
      *Allows the user to set a new value for the radius
      */
@@ -67,8 +73,11 @@ public class SilentLocale {
         mRadius = radius;
     }
 
+    /**
+     *Uses the SilentLocale object's gps location to fetch
+     *it's address using the geocoder api. Not 100% accurate
+     */
     public String getAddress(){
-        String silentAddress = "";
         List<Address> address;
         Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
         try {
@@ -87,6 +96,14 @@ public class SilentLocale {
     }
 
     /**
+     *Allows the user to set a new address in case the
+     *gps generated one is incorrect
+     */
+    public void setAddress(String address){
+        silentAddress = address;
+    }
+
+    /**
      *Takes the user's current location and calculates the
      * distance to the SilentLocale object and returns
      * true if it is within the radius and false otherwise
@@ -102,5 +119,10 @@ public class SilentLocale {
         }
 
         return false;
+    }
+
+    public void SilentIntent(){
+        Intent intent = new Intent(mContext, EditActivity.class);
+        mContext.startActivity(intent);
     }
 }

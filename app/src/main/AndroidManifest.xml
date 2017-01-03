@@ -21,7 +21,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".EditActivity"></activity>
+        <activity android:name=".EditActivity"
+            android:label="@string/edit_label"
+            android:parentActivityName=".MainActivity">
+
+        </activity>
     </application>
 
 </manifest>

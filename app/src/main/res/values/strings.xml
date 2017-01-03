@@ -6,4 +6,5 @@
     <string name="location_radius">Current Radius:</string>
     <string name="location_edit_radius">Edit Radius</string>
     <string name="default_radius">50m</string>
+    <string name="edit_label">Edit Location</string>
 </resources>

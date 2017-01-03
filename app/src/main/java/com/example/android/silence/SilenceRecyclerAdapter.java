@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class SilenceRecyclerAdapter extends RecyclerView.Adapter<SilenceRecyclerAdapter.ViewHolder> {
     private ArrayList<SilentLocale> mList;
 
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public static class ViewHolder extends RecyclerView.ViewHolder{
         public LinearLayout silentLayout;
 
         public ViewHolder(LinearLayout l){
@@ -24,10 +24,6 @@ public class SilenceRecyclerAdapter extends RecyclerView.Adapter<SilenceRecycler
             silentLayout = l;
         }
 
-        @Override
-        public void onClick(View v) {
-            
-        }
     }
 
     public SilenceRecyclerAdapter(ArrayList<SilentLocale> list){
@@ -43,12 +39,19 @@ public class SilenceRecyclerAdapter extends RecyclerView.Adapter<SilenceRecycler
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position){
+    public void onBindViewHolder(ViewHolder holder, final int position){
         TextView silentName = (TextView) holder.silentLayout.findViewById(R.id.silent_name);
         silentName.setText(mList.get(position).getSilentName());
 
         TextView silentAddress = (TextView) holder.silentLayout.findViewById(R.id.silent_address);
         silentAddress.setText(mList.get(position).getAddress());
+
+        holder.silentLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mList.get(position).SilentIntent();
+            }
+        });
     }
 
     @Override
