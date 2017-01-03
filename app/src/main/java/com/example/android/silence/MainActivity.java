@@ -28,7 +28,6 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener{
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
-    private SilentLocale launchCode = new SilentLocale(38.651703, -90.2593865, this);
     private AudioManager mAudioManager;
     private Toast toast;
     private TextView mTxtLatitude;
@@ -48,7 +47,6 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener{
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 
         silentList = new ArrayList<>();
-        silentList.add(launchCode);
         listSize = silentList.size();
 
         mRecyclerAdapter = new SilenceRecyclerAdapter(silentList);
@@ -63,7 +61,7 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener{
         mContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                silentList.add(new SilentLocale(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude(), MainActivity.this));
+                silentList.add(new SilentLocale(mCurrentLocation, MainActivity.this));
                 mRecyclerAdapter.notifyDataSetChanged();
                 listSize = silentList.size();
             }

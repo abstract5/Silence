@@ -4,9 +4,9 @@
 
     <meta-data
         android:name="com.google.android.version"
-        android:value="@integer/google_play_services_version"/>
+        android:value="@integer/google_play_services_version" />
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -21,6 +21,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".EditActivity"></activity>
     </application>
 
 </manifest>

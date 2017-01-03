@@ -14,6 +14,7 @@ import java.util.Locale;
  */
 
 public class SilentLocale {
+    private Location mLocation;
     private double mLat;
     private double mLon;
     private double mRadius;
@@ -22,26 +23,27 @@ public class SilentLocale {
     public static final String SILENCE_TAG = SilentLocale.class.getSimpleName();
     private Context mContext;
 
-    public SilentLocale(double latitude, double longitude, Context context){
-        mLat = latitude;
-        mLon = longitude;
+    public SilentLocale(Location location, Context context){
+        mLocation = location;
         mRadius = 50.0;
         mName = "LaunchCode";
         mContext = context;
+        mLat = location.getLatitude();
+        mLon = location.getLongitude();
     }
 
     /**
      *Returns the latitude of SilentLocale object
      */
     public double getSilentLatitude(){
-        return mLat;
+        return mLocation.getLatitude();
     }
 
     /**
      *Returns the longitude of SilentLocale object
      */
     public double getSilentLongitude(){
-        return mLon;
+        return mLocation.getLongitude();
     }
 
     /**

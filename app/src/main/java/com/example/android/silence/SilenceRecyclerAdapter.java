@@ -16,12 +16,17 @@ import java.util.ArrayList;
 public class SilenceRecyclerAdapter extends RecyclerView.Adapter<SilenceRecyclerAdapter.ViewHolder> {
     private ArrayList<SilentLocale> mList;
 
-    public static class ViewHolder extends RecyclerView.ViewHolder{
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         public LinearLayout silentLayout;
 
         public ViewHolder(LinearLayout l){
             super(l);
             silentLayout = l;
+        }
+
+        @Override
+        public void onClick(View v) {
+            
         }
     }
 
