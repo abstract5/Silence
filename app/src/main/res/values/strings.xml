@@ -1,10 +1,15 @@
 <resources>
     <string name="app_name">Silence</string>
     <string name="add_button">Add new location</string>
+
     <string name="location_name">Edit Location Name</string>
     <string name="location_address">Edit Address</string>
     <string name="location_radius">Current Radius:</string>
     <string name="location_edit_radius">Edit Radius</string>
     <string name="default_radius">50m</string>
     <string name="edit_label">Edit Location</string>
+
+    <string name="action_delete_all">Delete All Locations</string>
+    <string name="action_save">Save</string>
+    <string name="action_delete_item">Delete Location</string>
 </resources>
