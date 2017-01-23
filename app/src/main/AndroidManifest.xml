@@ -6,7 +6,8 @@
         android:name="com.google.android.version"
         android:value="@integer/google_play_services_version" />
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-feature android:name="android.hardware.location" android:required="true"/>
 
     <application
         android:allowBackup="true"
@@ -24,8 +25,11 @@
         <activity android:name=".EditActivity"
             android:label="@string/edit_label"
             android:parentActivityName=".MainActivity">
-
         </activity>
+        <provider
+            android:authorities="com.example.android.silence"
+            android:name=".data.SilentProvider"
+            android:exported="false"/>
     </application>
 
 </manifest>

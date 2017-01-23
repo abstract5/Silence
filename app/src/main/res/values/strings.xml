@@ -12,4 +12,6 @@
     <string name="action_delete_all">Delete All Locations</string>
     <string name="action_save">Save</string>
     <string name="action_delete_item">Delete Location</string>
+    <string name="location_add_error">Error saving location</string>
+    <string name="add_new_location">Location added</string>
 </resources>

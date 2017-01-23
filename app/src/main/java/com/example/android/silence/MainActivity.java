@@ -1,5 +1,10 @@
 package com.example.android.silence;
 
+import android.app.LoaderManager;
+import android.content.CursorLoader;
+import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
 import android.location.Location;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -13,33 +18,28 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.silence.data.SilentContract.SilentEntry;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import java.util.ArrayList;
-
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
-GoogleApiClient.OnConnectionFailedListener, LocationListener{
+GoogleApiClient.OnConnectionFailedListener, LocationListener, LoaderManager.LoaderCallbacks<Cursor>{
 
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private AudioManager mAudioManager;
-    private Toast toast;
-    private TextView mTxtLatitude;
-    private TextView mTxtLongitude;
     private RecyclerView mRecycleList;
-    private SilenceRecyclerAdapter mRecyclerAdapter;
+    private SilentRecyclerAdapter mRecyclerAdapter;
     private LinearLayout mContainer;
     private Location mCurrentLocation;
-    private ArrayList<SilentLocale> silentList;
-    private int listSize;
+    private Cursor silentCursor;
+    private int mCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,28 +48,26 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener{
 
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 
-        silentList = new ArrayList<>();
-        listSize = silentList.size();
 
-        mRecyclerAdapter = new SilenceRecyclerAdapter(silentList);
+        mCount = silentCursor.getCount();
+
+        mRecyclerAdapter = new SilentRecyclerAdapter(silentCursor, this);
         mRecycleList = (RecyclerView) findViewById(R.id.silent_list);
         mRecycleList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
-        mTxtLatitude = (TextView) findViewById(R.id.latitude);
-        mTxtLongitude = (TextView) findViewById(R.id.longitude);
         mContainer = (LinearLayout) findViewById(R.id.button_container);
         mRecycleList.setAdapter(mRecyclerAdapter);
 
         mContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                silentList.add(new SilentLocale(mCurrentLocation, MainActivity.this));
-                mRecyclerAdapter.notifyDataSetChanged();
-                listSize = silentList.size();
+                Intent intent = new Intent(MainActivity.this, EditActivity.class);
+                startActivity(intent);
             }
         });
 
         buildGoogleApiClient();
+        getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
@@ -96,6 +94,7 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener{
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.action_delete_all:
+                deleteAllLocations();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -125,26 +124,22 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener{
 
     @Override
     public void onLocationChanged(Location location) {
-        mTxtLongitude.setText(Double.toString(location.getLongitude()));
-        mTxtLatitude.setText(Double.toString(location.getLatitude()));
         mCurrentLocation = location;
-        int j = listSize;
+        int j = mCount;
 
-        for(int i = 0; i < listSize; i++) {
+        for(int i = 0; i < mCount; i++) {
             if (mAudioManager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
-                if (silentList.get(i).isSilent(location)) {
+                if (silentCursor.get(i).isSilent(location)) {
                     mAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                    toast = Toast.makeText(this, "You're silenced!", Toast.LENGTH_SHORT);
-                    toast.show();
+                    Toast.makeText(this, "You're silenced!", Toast.LENGTH_SHORT).show();
                      j = i;
                 }
             }
-            if (mAudioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT && j < listSize) {
-                if (!silentList.get(j).isSilent(location)) {
+            if (mAudioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT && j < mCount) {
+                if (!silentCursor.get(j).isSilent(location)) {
                     mAudioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-                    toast = Toast.makeText(this, "You're free ringing!", Toast.LENGTH_SHORT);
-                    toast.show();
-                    j = listSize;
+                    Toast.makeText(this, "You're free ringing!", Toast.LENGTH_SHORT).show();
+                    j = mCount;
                 }
             }
         }
@@ -156,5 +151,41 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener{
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
+    }
+
+    public void deleteAllLocations(){
+        int rowsDeleted = getContentResolver().delete(SilentEntry.CONTENT_URI, null, null);
+        Log.v(LOG_TAG, rowsDeleted + " rows deleted from silence database.");
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String[] projection = {SilentEntry._ID,
+                SilentEntry.COLUMN_LOCALE_NAME,
+                SilentEntry.COLUMN_LOCALE_ADDRESS,
+                SilentEntry.COLUMN_LOCALE_LONGITUDE,
+                SilentEntry.COLUMN_LOCALE_LATITUDE,
+                SilentEntry.COLUMN_LOCALE_RADIUS};
+
+        return new CursorLoader(MainActivity.this,
+                SilentEntry.CONTENT_URI,
+                projection,
+                null,
+                null,
+                null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if(mRecyclerAdapter == null){
+            mRecyclerAdapter = new SilentRecyclerAdapter(silentCursor, MainActivity.this);
+            mRecycleList.setAdapter(mRecyclerAdapter);
+        }
+        mRecyclerAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mRecyclerAdapter.swapCursor(null);
     }
 }
