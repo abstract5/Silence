@@ -171,6 +171,7 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener, LoaderManager.Load
     public void deleteAllLocations(){
         int rowsDeleted = getContentResolver().delete(SilentEntry.CONTENT_URI, null, null);
         Log.v(LOG_TAG, rowsDeleted + " rows deleted from silence database.");
+        mRecyclerAdapter.notifyItemRangeRemoved(0, mCount);
     }
 
     @Override
@@ -236,5 +237,6 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener, LoaderManager.Load
         values.put(SilentEntry.COLUMN_LOCALE_RADIUS, 5);
 
         getContentResolver().insert(SilentEntry.CONTENT_URI, values);
+        mRecyclerAdapter.notifyDataSetChanged();
     }
 }
