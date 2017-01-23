@@ -4,6 +4,8 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,6 +15,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.android.silence.data.SilentContract.SilentEntry;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by strai on 12/19/2016.
@@ -36,7 +42,6 @@ public class SilentRecyclerAdapter extends RecyclerView.Adapter<SilentRecyclerAd
     public SilentRecyclerAdapter(Cursor cursor, Context context){
         mCursor = cursor;
         mContext = context;
-        mIdIndex = mCursor.getColumnIndex(SilentEntry._ID);
     }
 
     @Override
@@ -49,14 +54,21 @@ public class SilentRecyclerAdapter extends RecyclerView.Adapter<SilentRecyclerAd
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position){
+        mCursor.moveToPosition(position);
         int nameIndex = mCursor.getColumnIndex(SilentEntry.COLUMN_LOCALE_NAME);
         int addressIndex = mCursor.getColumnIndex(SilentEntry.COLUMN_LOCALE_ADDRESS);
+        mIdIndex = mCursor.getColumnIndex(SilentEntry._ID);
+        String address = getAddress();
 
         TextView silentName = (TextView) holder.silentLayout.findViewById(R.id.silent_name);
         silentName.setText(mCursor.getString(nameIndex));
 
         TextView silentAddress = (TextView) holder.silentLayout.findViewById(R.id.silent_address);
-        silentAddress.setText(mCursor.getString(addressIndex));
+        if(address != null){
+            silentAddress.setText(address);
+        }else {
+            silentAddress.setText(mCursor.getString(addressIndex));
+        }
 
         holder.silentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,5 +99,28 @@ public class SilentRecyclerAdapter extends RecyclerView.Adapter<SilentRecyclerAd
             notifyItemRangeRemoved(0, getItemCount());
             mCursor = null;
         }
+    }
+
+    public String getAddress(){
+        List<Address> address;
+        Geocoder geocoder = new Geocoder(mContext, Locale.getDefault());
+        String silentAddress = "";
+        int lonIndex = mCursor.getColumnIndex(SilentEntry.COLUMN_LOCALE_LONGITUDE);
+        int latIndex = mCursor.getColumnIndex(SilentEntry.COLUMN_LOCALE_LATITUDE);
+        double longitude = mCursor.getDouble(lonIndex);
+        double latitude = mCursor.getDouble(latIndex);
+        try {
+            address = geocoder.getFromLocation(latitude, longitude, 1);
+            String streetAdd = address.get(0).getAddressLine(0);
+            String city = address.get(0).getLocality();
+            String postal = address.get(0).getPostalCode();
+
+            silentAddress = silentAddress + streetAdd + ", " +
+                    city + " " + postal;
+        }catch(IOException e){
+            silentAddress = null;
+        }
+
+        return silentAddress;
     }
 }
