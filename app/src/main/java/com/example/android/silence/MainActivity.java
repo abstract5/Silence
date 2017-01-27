@@ -1,23 +1,27 @@
 package com.example.android.silence;
 
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.location.Location;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.silence.data.SilentContract.SilentEntry;
@@ -34,10 +38,12 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener, LoaderManager.Load
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private AudioManager mAudioManager;
-    private RecyclerView mRecycleList;
-    private SilentRecyclerAdapter mRecyclerAdapter;
+    private ListView mSilentList;
+    private SilentAdapter mSilentAdapter;
     private LinearLayout mContainer;
     private Location mCurrentLocation;
+    private TextView longTextView;
+    private TextView latTextView;
     private double mLongitude;
     private int mLongitudeIndex;
     private double mLatitude;
@@ -46,6 +52,7 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener, LoaderManager.Load
     private int mRadiusIndex;
     private Cursor mSilentCursor;
     private int mCount;
+    private int mCountReset;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,10 +61,12 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener, LoaderManager.Load
 
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 
-        mRecyclerAdapter = new SilentRecyclerAdapter(null, this);
-        mRecycleList = (RecyclerView) findViewById(R.id.silent_list);
-        mRecycleList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        mRecycleList.setAdapter(mRecyclerAdapter);
+        mSilentAdapter = new SilentAdapter(this, null);
+        mSilentList = (ListView) findViewById(R.id.silent_list);
+        mSilentList.setAdapter(mSilentAdapter);
+
+        longTextView = (TextView) findViewById(R.id.longitude);
+        latTextView = (TextView) findViewById(R.id.latitude);
 
         mContainer = (LinearLayout) findViewById(R.id.button_container);
 
@@ -70,8 +79,21 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener, LoaderManager.Load
             }
         });
 
-        buildGoogleApiClient();
+        mSilentList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(MainActivity.this, EditActivity.class);
+
+                Uri currentLocaleUri = ContentUris.withAppendedId(SilentEntry.CONTENT_URI, id);
+                intent.setData(currentLocaleUri);
+
+                startActivity(intent);
+            }
+        });
+
         getLoaderManager().initLoader(0, null, this);
+        buildGoogleApiClient();
+        mCountReset = mCount;
     }
 
     @Override
@@ -129,7 +151,8 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener, LoaderManager.Load
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
-        int j = mCount;
+        latTextView.setText(Double.toString(location.getLatitude()));
+        longTextView.setText(Double.toString(location.getLongitude()));
 
         for(int i = 0; i < mCount; i++){
             mSilentCursor.moveToPosition(i);
@@ -139,16 +162,16 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener, LoaderManager.Load
                 if(isSilent(location)){
                     mAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
                     Toast.makeText(this, "You're silenced!", Toast.LENGTH_SHORT).show();
-                    j = i;
+                    mCountReset = i;
                 }
             }
-            if(mAudioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT && j < mCount){
-                mSilentCursor.moveToPosition(j);
+            if(mAudioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT && mCountReset < mCount){
+                mSilentCursor.moveToPosition(mCountReset);
                 getLocationData();
                 if(!isSilent(location)){
                     mAudioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
                     Toast.makeText(this, "You're free ringing!", Toast.LENGTH_SHORT).show();
-                    j = mCount;
+                    mCountReset = mCount;
                 }
             }
         }
@@ -171,7 +194,6 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener, LoaderManager.Load
     public void deleteAllLocations(){
         int rowsDeleted = getContentResolver().delete(SilentEntry.CONTENT_URI, null, null);
         Log.v(LOG_TAG, rowsDeleted + " rows deleted from silence database.");
-        mRecyclerAdapter.notifyItemRangeRemoved(0, mCount);
     }
 
     @Override
@@ -193,12 +215,12 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener, LoaderManager.Load
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if(mRecyclerAdapter == null){
-            mRecyclerAdapter = new SilentRecyclerAdapter(null, MainActivity.this);
-            mRecycleList.setAdapter(mRecyclerAdapter);
+        if(mSilentAdapter == null){
+            mSilentAdapter = new SilentAdapter(this, null);
+            mSilentList.setAdapter(mSilentAdapter);
         }
         mSilentCursor = data;
-        mRecyclerAdapter.swapCursor(mSilentCursor);
+        mSilentAdapter.swapCursor(mSilentCursor);
 
         mCount = mSilentCursor.getCount();
         mLongitudeIndex = mSilentCursor.getColumnIndex(SilentEntry.COLUMN_LOCALE_LONGITUDE);
@@ -208,7 +230,7 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener, LoaderManager.Load
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        mRecyclerAdapter.swapCursor(null);
+        mSilentAdapter.swapCursor(null);
     }
 
     public boolean isSilent(Location currentLocation){
@@ -237,6 +259,6 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener, LoaderManager.Load
         values.put(SilentEntry.COLUMN_LOCALE_RADIUS, 5);
 
         getContentResolver().insert(SilentEntry.CONTENT_URI, values);
-        mRecyclerAdapter.notifyDataSetChanged();
+        mSilentAdapter.notifyDataSetChanged();
     }
 }
