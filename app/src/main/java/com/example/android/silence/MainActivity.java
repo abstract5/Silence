@@ -73,9 +73,10 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener, LoaderManager.Load
         mContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent intent = new Intent(MainActivity.this, EditActivity.class);
-//                startActivity(intent);
-                insertDummyData();
+                Intent intent = new Intent(MainActivity.this, EditActivity.class);
+                Uri currentLocationUri = useCurrentLocation();
+                intent.setData(currentLocationUri);
+                startActivity(intent);
             }
         });
 
@@ -250,15 +251,17 @@ GoogleApiClient.OnConnectionFailedListener, LocationListener, LoaderManager.Load
     }
 
 
-    public void insertDummyData(){
+    public Uri useCurrentLocation(){
         ContentValues values = new ContentValues();
         values.put(SilentEntry.COLUMN_LOCALE_NAME, "Silent Locale");
-        values.put(SilentEntry.COLUMN_LOCALE_ADDRESS, "No address available");
+        values.put(SilentEntry.COLUMN_LOCALE_ADDRESS, "");
         values.put(SilentEntry.COLUMN_LOCALE_LONGITUDE, mCurrentLocation.getLongitude());
         values.put(SilentEntry.COLUMN_LOCALE_LATITUDE, mCurrentLocation.getLatitude());
         values.put(SilentEntry.COLUMN_LOCALE_RADIUS, 5);
 
-        getContentResolver().insert(SilentEntry.CONTENT_URI, values);
+        Uri uri = getContentResolver().insert(SilentEntry.CONTENT_URI, values);
         mSilentAdapter.notifyDataSetChanged();
+
+        return uri;
     }
 }

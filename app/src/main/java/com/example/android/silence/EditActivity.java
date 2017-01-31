@@ -216,6 +216,12 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
             String address = data.getString(addressIndex);
             int radius = data.getInt(radiusIndex);
 
+            if(address.equals(null) || address.equals("")){
+                address = SilentEntry.getAddress(this, data);
+            }
+            if(address.equals(null) || address.equals("")){
+                address = "No address available";
+            }
             mEditName.setText(name);
             mEditAddress.setText(address);
             mEditRadius.setText(Integer.toString(radius));
